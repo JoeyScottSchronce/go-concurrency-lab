@@ -18,7 +18,20 @@ npm run build
 npm run preview
 ```
 
-Docker: `docker build -t go-concurrency-trainer .`
+Docker (serves at `/`; pass API key at image build time):
+
+```bash
+docker build --build-arg VITE_GEMINI_API_KEY=your_key -t go-concurrency-trainer .
+docker run -p 8080:80 go-concurrency-trainer
+```
+
+## GitHub Pages (GitHub Actions)
+
+Repository **Settings → Pages**: source **GitHub Actions**.
+
+Add a repository secret **`VITE_GEMINI_API_KEY`** (same name as local `.env`). Pushes to `main` run `.github/workflows/pages.yml`, which runs `npm ci` / `npm run build` with the correct **`base`** for `https://<user>.github.io/<repo>/`, uploads `dist`, and deploys.
+
+For a **user/org site** repo named `<user>.github.io`, `vite.config.ts` uses base `/` automatically.
 
 ## Publish to GitHub
 

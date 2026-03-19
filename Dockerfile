@@ -1,18 +1,21 @@
-# Build stage
+# Static build + nginx. For GitHub Pages use .github/workflows/pages.yml (builds with Node in CI).
+# Optional: docker build --build-arg VITE_GEMINI_API_KEY=... -t go-concurrency-trainer .
 FROM node:24-slim AS build
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+COPY package.json package-lock.json ./
 
-# Install dependencies
-RUN npm install
+RUN npm ci
 
-# Copy source code
 COPY . .
 
-# Build the application
+ARG VITE_GEMINI_API_KEY=
+ENV VITE_GEMINI_API_KEY=$VITE_GEMINI_API_KEY
+
+# Root base path (/) — same as local production preview; not GitHub Pages subpath
+ENV VITE_BASE_PATH=/
+
 RUN npm run build
 
 # Production stage
