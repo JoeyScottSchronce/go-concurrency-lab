@@ -79,14 +79,14 @@ export async function generateChallenge(
 
   const response = await ai.models.generateContent({
     model: "gemini-3.1-flash-lite-preview",
-    contents: `Generate a Go programming challenge for the topic identifier: ${topicId}.
+    contents: `Generate a simple Go programming challenge for the topic identifier: ${topicId}.
 
 The challenge MUST focus on Go concurrency: goroutines, channels (send/receive, buffering, closing, ranging), select, sync.WaitGroup, sync.Mutex and sync.RWMutex, context.Context (cancellation/deadlines), time.After / time.Ticker when relevant, worker pools, pipelines, and happens-before reasoning.
 Do NOT make the primary learning goal non-concurrency Go (e.g. structs-only or JSON-only); minimal setup code is OK.
 
 Requirements:
-- The user completes the task by writing a Go code snippet (package main with func main() is fine unless you specify otherwise).
-- The challenge must require thinking about concurrency (races, synchronization, channel patterns, or context).
+- The user completes the task by writing a simple Go code snippet (package main with func main() is fine unless you specify otherwise).
+- The challenge must require thinking about entry-level concurrency concepts (races, synchronization, channel patterns, or context).
 - Provide a description of the task and environment/context (variables, constraints).
 - Include expectedOutcomeCriteria: concise behavioral success criteria (no code).
 - Include expectedReferenceSolution: a canonical Go reference solution.${avoidBlock}`,
@@ -116,7 +116,7 @@ Requirements:
           "expectedReferenceSolution",
         ]
       },
-      systemInstruction: "You are an expert Go concurrency tutor. You generate concise, educational coding challenges that require goroutines, channels, select, sync, and/or context. Prefer realistic concurrency patterns (worker pools, fan-in/fan-out, cancellation). Use idiomatic Go."
+      systemInstruction: "You are an expert Go concurrency tutor, instructing junior developers. You generate concise, entry-level educational coding challenges that require either goroutines, channels, select, sync, and/or context. Prefer realistic concurrency patterns at a basic level (worker pools, fan-in/fan-out, cancellation). Use idiomatic Go."
     }
   });
 

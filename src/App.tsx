@@ -21,9 +21,23 @@ import { AppState, Challenge, SessionState, ProgressEvaluationResult } from './t
 import { evaluateProgress, generateChallenge, gradeSubmission } from './services/aiService';
 import { makeTopicKey, fingerprintChallenge } from './utils/challengeFingerprint';
 import { formatReferenceSolution } from './utils/formatReferenceSolution';
+import { referenceToBoilerplate } from './utils/referenceToBoilerplate';
 
 const MAX_GENERATION_RETRIES = 3;
 const MAX_RECENT_CHALLENGES_TO_AVOID = 5;
+
+const DEFAULT_EDITOR_FALLBACK = `// Write your Go solution here...
+package main
+
+func main() {
+\t// ...
+}
+`;
+
+function editorSeedFromChallenge(challenge: Challenge): string {
+  const boilerplate = referenceToBoilerplate(challenge.expectedReferenceSolution);
+  return boilerplate.trim() ? boilerplate : DEFAULT_EDITOR_FALLBACK;
+}
 
 export default function App() {
   const [appState, setAppState] = useState<AppState>('DASHBOARD');
@@ -69,7 +83,7 @@ export default function App() {
     return lastChallenge ?? (await generateChallenge(CONCURRENCY_TOPIC_ID, { avoidExactChallenges }));
   };
 
-  const startConcurrencySession = async () => {
+  const startConcurrencySession = async (): Promise<Challenge> => {
     const challenge = await generateNonRepeatingChallenge();
     setSession(prev => ({
       ...prev,
@@ -92,6 +106,7 @@ export default function App() {
         };
       })(),
     }));
+    return challenge;
   };
 
   const handleStartConcurrency = async () => {
@@ -99,9 +114,9 @@ export default function App() {
     setAppState('LOADING_CHALLENGE');
     setError(null);
     try {
-      await startConcurrencySession();
+      const challenge = await startConcurrencySession();
       setAppState('PRACTICE');
-      setUserInput('');
+      setUserInput(editorSeedFromChallenge(challenge));
     } catch (err) {
       setError('Could not start a challenge. Please try again.');
       setAppState('DASHBOARD');
@@ -204,7 +219,7 @@ export default function App() {
         })(),
       }));
       setAppState('PRACTICE');
-      setUserInput('');
+      setUserInput(editorSeedFromChallenge(challenge));
     } catch (e) {
       console.error(e);
       setError('Failed to load next challenge.');
