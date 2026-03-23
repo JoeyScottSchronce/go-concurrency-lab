@@ -19,7 +19,7 @@ ENV VITE_BASE_PATH=/
 RUN npm run build
 
 # Production stage
-FROM nginx:stable-alpine
+FROM nginx:1.29.3-alpine3.22-slim
 
 # Copy built assets from build stage
 COPY --from=build /app/dist /usr/share/nginx/html
